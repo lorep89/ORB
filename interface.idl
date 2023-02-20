@@ -1,0 +1,14 @@
+
+interface Car
+{
+	int accel(int acInt, int test);
+
+	int brake(int brInt);
+
+}
+
+interface Plane
+{
+	int take_off(int acInt);
+
+}
