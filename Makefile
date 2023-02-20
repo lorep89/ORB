@@ -1,4 +1,4 @@
-CXX			= g++
+CXX		= g++
 CXXFLAGS	= -I./inc -I./Autogen/inc -Wall -pedantic
 LDFLAGS		= -L./lib -lCar -lPlane -lORB
 
