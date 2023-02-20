@@ -29,6 +29,9 @@ This will generate, in Autogen folder, all the needed files to compile your inte
 To create your interface service you can edit the service header and cpp files located in
 Autogen/inc and Autogen/imp folders respectively
 
+note: in the test folder there are 2 example of service implementation relative to the
+interfaces (Car and Plane) of the test
+
 ----------------------------------------------------------------------
 Once your services are ready, you can compile an interface running the below command
 from Autogen folder:
