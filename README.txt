@@ -59,10 +59,12 @@ $ make [test client file-name]
 
 --------------------------------- Running instructions ---------------------------------------------
 run these commands in three separate terminal window:
-1$ ./bin/NameServer
-
-2$ export LD_LIBRARY_PATH=./lib
-2$ ./bin/[server test fil-name]
-
-3$ export LD_LIBRARY_PATH=./lib
-3$ ./bin/[client test fil-name]
+				      (or)
+1$ ./bin/NameServer			|	1$ sh runns.sh
+					|
+2$ export LD_LIBRARY_PATH=./lib		|	2$ sh runserver.sh
+2$ ./bin/[server test fil-name]		|
+					|
+3$ export LD_LIBRARY_PATH=./lib		|	3$ sh runclient.sh
+3$ ./bin/[client test fil-name]		|
+					|
