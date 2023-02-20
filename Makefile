@@ -27,6 +27,8 @@ ns: $(bindir)/NameServer
 
 orb: $(libdir)/libORB.so
 
+test: $(serverexe) $(clientexe)
+
 $(clientexe): $(bindir)/$(clientexe)
 
 $(bindir)/$(clientexe): $(testdir)/$(clientexe).cpp | $(bindir)/
