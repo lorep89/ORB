@@ -54,8 +54,7 @@ To compile these tests you need to tell the Makefile which are your test files,
 editing the Makefile variables serverexe and clientexe and adding to LDFLAGS
 one optioni -l[interface name] for each of your interface.
 Then you can lounch:
-$ make [test server file-name]
-$ make [test client file-name]
+$ make test
 
 --------------------------------- Running instructions ---------------------------------------------
 run these commands in three separate terminal window:
