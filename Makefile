@@ -1,5 +1,5 @@
 CXX		= g++
-CXXFLAGS	= -I./inc -I./Autogen/inc -Wall -pedantic
+CXXFLAGS	= -I./include -I./Autogen/inc -Wall -pedantic
 LDFLAGS		= -L./lib -lCar -lPlane -lORB
 
 srcdir	=	./src
@@ -19,7 +19,7 @@ NS_OBJS = $(addprefix $(objdir)/,$(patsubst %.cpp,%.o,$(NS_SRCS)))
 
 .PRECIOUS: $(objdir)/ $(objdir)%/ $(bindir)/ $(bindir)%/ $(libdir)/ $(libdir)%/
 
-all: parse ns orb
+all: ns parse orb
 
 parse: $(bindir)/parse
 
