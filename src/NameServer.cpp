@@ -10,8 +10,6 @@ using std::endl;
 
 // cout << "Peer IP: " << socket_.remote_endpoint().address().to_string() << std::endl;
 
-NameServer::NameServer() {}
-
 NameServer::NameServer (int port) {
 	lport = port;
 	cout<<"NameServer created. Port: "<<port<<endl;
@@ -43,12 +41,12 @@ void NameServer::elab(boost::asio::ip::tcp::socket & socket, string msg) {
 	case NSREG:
 		cout<<"New Servant registering..."<<endl;
 		nsobj.port = stoi(vet.at(1));
-		nsobj.type = vet.at(2);
-		names.insert(std::pair{nsobj.type, nsobj});
-		cout<<"IP: "<< nsobj.ip << endl <<"Port: " << nsobj.port << endl << "type: " << nsobj.type << endl;
+		nsobj.name = vet.at(2);
+		names.insert(std::pair{nsobj.name, nsobj});
+		cout<<"IP: "<< nsobj.ip << endl <<"Port: " << nsobj.port << endl << "name: " << nsobj.name << endl;
 		for(auto& p: names)
 			cout<< p.first << endl;
-		resp = nsobj.type + " registered to ORB";
+		resp = nsobj.name + " registered to ORB";
 		break;
 
 	case NSFIND:
@@ -56,7 +54,7 @@ void NameServer::elab(boost::asio::ip::tcp::socket & socket, string msg) {
 		resp = "0/not found in Name Server";
 		auto it = names.find(vet.at(1));
 		if(it != names.end())
-			resp = it->second.ip + "/" + std::to_string(it->second.port) + "/" + it->second.type;
+			resp = it->second.ip + "/" + std::to_string(it->second.port) + "/" + it->second.name;
 		break;
 	}
 

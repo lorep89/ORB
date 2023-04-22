@@ -11,7 +11,7 @@
 struct NSOBJ{
 	string ip;
 	int port;
-	string type;
+	string name;
 };
 
 class NameServer {
@@ -23,8 +23,6 @@ private:
 
 	void elab(boost::asio::ip::tcp::socket & socket, string msg);
 public:
-	NameServer();
-
 	NameServer (int port);
 
 	void start();
