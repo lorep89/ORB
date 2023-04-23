@@ -21,6 +21,10 @@ private:
 	thread* skelt;
 
 public:
+	ORB();
+
+	~ORB();
+
 	bool find(string ifname, string name, string* s);
 
 	void deploy(Service* obj);

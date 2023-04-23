@@ -3,6 +3,17 @@
 
 using namespace std;
 
+ORB::ORB(){
+	skport = stoi(SKPORT);
+	skelsrv = new SkelServer(skport);
+	skelt = new thread(&SkelServer::start, skelsrv);
+}
+
+ORB::~ORB(){
+	skelt->join();
+	delete(skelsrv);
+}
+
 bool ORB::find(string ifname, string name, string* s) {
 		Client c;
 		bool found = false;
@@ -35,12 +46,11 @@ void ORB::deploy(Service* obj) {
 }
 
 void ORB::init() {
-	skport = stoi(SKPORT);
-	skelsrv = new SkelServer(skport);
-	skelt = new thread(&SkelServer::start, skelsrv);
+//	skport = stoi(SKPORT);
+//	skelsrv = new SkelServer(skport);
+//	skelt = new thread(&SkelServer::start, skelsrv);
 }
 
 void ORB::shutdown() {
-	// for(int i=0; i<(int)(skelts.size()); ++i)
-	skelt->join();
+//	skelt->join();
 }

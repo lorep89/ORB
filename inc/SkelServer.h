@@ -1,14 +1,10 @@
 #ifndef SKELSERVER_H
 #define SKELSERVER_H
 
-
-#include <iostream>
 #include <map>
 #include <boost/asio.hpp>
 #include <boost/tokenizer.hpp>
 #include <boost/variant.hpp>
-#include <boost/thread.hpp>
-
 #include "../inc/def.h"
 #include "../inc/Service.h"
 #include "../inc/Skel.h"
@@ -32,8 +28,6 @@ private:
 	void elab(boost::asio::ip::tcp::socket & socket, string msg);
 
 public:
-	SkelServer() {};
-
 	SkelServer(int port);
 
 	bool add(Service* obj);

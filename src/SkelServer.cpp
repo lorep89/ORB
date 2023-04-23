@@ -1,5 +1,4 @@
 #include <iostream>
-#include <map>
 #include <typeinfo>
 #include "SkelServer.h"
 
@@ -7,7 +6,7 @@ using std::string;
 using std::cout;
 using std::endl;
 
-SkelServer::SkelServer (int port) {
+SkelServer::SkelServer(int port) {
 	lport = port;
 	cout<<"SkelServer created. Port: "<<port<<endl;
 }

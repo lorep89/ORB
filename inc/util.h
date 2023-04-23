@@ -2,7 +2,6 @@
 #define UTIL_H
 
 #include <boost/asio.hpp>
-#include <boost/tokenizer.hpp>
 #include <iostream>
 
 using std::string;

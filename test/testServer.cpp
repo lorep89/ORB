@@ -6,7 +6,7 @@ using namespace std;
 
 int main() {
 	ORB myORB;
-	myORB.init();
+//	myORB.init();
 
 	Carservice* c1;
 	// Carservice* c2;
@@ -24,6 +24,7 @@ int main() {
 	myORB.deploy(p1);
 	cout<<p1->getName()<<" deployed"<<endl;
 
-	myORB.shutdown();
+//	delete(myORB);
+//	myORB.shutdown();
 	return 0;
 }

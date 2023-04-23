@@ -11,11 +11,13 @@ using std::string;
 
 class Service;
 
-class Skel {
+class Skel{
 private:
 
 public:
-	Skel() {};
+	Skel(){};
+
+	virtual ~Skel(){};
 
 	virtual string dispatch(std::vector<string> vet) = 0;
 
