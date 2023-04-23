@@ -5,7 +5,7 @@ objdir	=	../obj
 libdir	=	../lib
 	
 clean:
-	rm src/* inc/*
+	rm -f src/* inc/*
 
 $(objdir)/Client.o:
 	$(CXX) $(CXXFLAGS) -c -fPIC ../src/Client.cpp -o $@

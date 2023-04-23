@@ -1,13 +1,12 @@
-#include <iostream>
 #include <map>
 #include <typeinfo>
+#include <boost/tokenizer.hpp>
 #include "NameServer.h"
-// #include "util.h"
 
-using std::string;
-using std::cout;
-using std::endl;
-
+//using std::string;
+//using std::cout;
+//using std::endl;
+using namespace std;
 // cout << "Peer IP: " << socket_.remote_endpoint().address().to_string() << std::endl;
 
 NameServer::NameServer (int port) {

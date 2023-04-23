@@ -317,7 +317,7 @@ void addMake(string ifname) {
 		<<"\t$(CXX) $(CXXFLAGS) -c -fPIC ./imp/"<<ifname<<"service.cpp "<<"-o $@\n\n";
 
 	mout<<"clean"<<ifname<<":\n"
-		<<"\trm $(objdir)/"<<ifname<<"Proxy.o $(objdir)/"<<ifname<<"Skel.o $(objdir)/"<<ifname<<"service.o $(dirlib)/lib"<<ifname<<".so\n\n";
+		<<"\trm -f $(objdir)/"<<ifname<<"Proxy.o $(objdir)/"<<ifname<<"Skel.o $(objdir)/"<<ifname<<"service.o $(libdir)/lib"<<ifname<<".so\n\n";
 
 	mout.close();
 }

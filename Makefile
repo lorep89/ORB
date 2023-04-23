@@ -100,4 +100,4 @@ cleanOrb:
 	rm -f $(ORB_OBJS) $(libdir)/libORB.so
 
 clean: 
-	rm -f $(objdir)/*.o $(bindir)/*
+	rm -f $(objdir)/*.o $(bindir)/* $(libdir)/libORB.so
