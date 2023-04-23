@@ -1,5 +1,5 @@
 CXX		= g++
-CXXFLAGS	= -I./include -I./Autogen/inc -Wall -pedantic
+CXXFLAGS	= -I./inc -I./Autogen/inc -Wall -pedantic
 LDFLAGS		= -L./lib -lCar -lPlane -lORB
 
 srcdir	=	./src
@@ -45,8 +45,8 @@ $(bindir)/NameServer: $(NS_OBJS) | $(bindir)/
 $(libdir)/libORB.so: $(ORB_OBJS) | $(libdir)/
 	$(CXX) $(CXXFLAGS) -shared -Wl,-soname,libORB.so $^ -o $@
 
-$(bindir)/parse: $(objdir)/utilParse.o | $(bindir)/
-	$(CXX) $(CXXFLAGS) $^ $(srcdir)/parse.cpp -o $@
+$(bindir)/parse: $(objdir)/utilParse.o $(srcdir)/parse.cpp | $(bindir)/
+	$(CXX) $(CXXFLAGS) $^ -o $@
 
 $(objdir)/:
 	mkdir -p $@

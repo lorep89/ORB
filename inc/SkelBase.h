@@ -6,9 +6,10 @@
 #include <boost/tokenizer.hpp>
 #include <boost/variant.hpp>
 #include <boost/thread.hpp>
-#include "Skel.h"
-#include "Service.h"
-#include "util.h"
+
+#include "../../inc/Service.h"
+#include "../../inc/Skel.h"
+#include "../../inc/util.h"
 
 using std::string;
 

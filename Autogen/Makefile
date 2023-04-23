@@ -3,8 +3,8 @@ CXXFLAGS	= -I../inc -I./inc
 
 objdir	=	../obj
 libdir	=	../lib
-
-cleanIfaces:
+	
+clean:
 	rm src/* inc/*
 
 $(objdir)/Client.o:

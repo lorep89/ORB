@@ -2,11 +2,11 @@
 #define NAMESERVER_H
 
 #include <boost/asio.hpp>
+#include <iostream>
 #include <map>
-#include <boost/tokenizer.hpp>
-// #include "Server.h"
-#include "util.h"
-#include "def.h"
+
+#include "../inc/def.h"
+#include "../inc/util.h"
 
 struct NSOBJ{
 	string ip;

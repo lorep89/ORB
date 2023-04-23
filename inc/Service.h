@@ -1,7 +1,7 @@
 #ifndef SERVICE_H
 #define SERVICE_H
 
-#include "Skel.h"
+#include "../inc/Skel.h"
 
 class Service {
 private:

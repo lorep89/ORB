@@ -3,7 +3,8 @@
 
 #include <iostream>
 #include <boost/asio.hpp>
-#include "util.h"
+
+#include "../inc/util.h"
 
 using namespace std;
 using namespace boost::asio;

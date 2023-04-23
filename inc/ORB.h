@@ -3,12 +3,13 @@
 
 #include <thread>
 #include <boost/variant.hpp>
-#include "SkelServer.h"
-#include "Skel.h"
-#include "Service.h"
-#include "NameServer.h"
-#include "Client.h"
-#include "def.h"
+
+#include "../inc/Client.h"
+#include "../inc/def.h"
+#include "../inc/NameServer.h"
+#include "../inc/Service.h"
+#include "../inc/Skel.h"
+#include "../inc/SkelServer.h"
 
 using namespace std;
 using std::string;

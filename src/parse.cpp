@@ -5,9 +5,11 @@
 #include <fstream>
 #include <boost/version.hpp>
 #include <stdio.h>
+#include <stdlib.h>
 #include <boost/algorithm/string.hpp>
 #include <filesystem>
-#include "utilParse.h"
+
+#include "../inc/utilParse.h"
 
 using namespace std;
 namespace fs = std::filesystem;
@@ -31,6 +33,8 @@ int main(int argc, char* argv[]) {
 
 		if(!fs::exists(fs::status("./Autogen/imp")))
 			fs::create_directory("./Autogen/imp");
+
+		system("sed -i \"1,14!d\"	./Autogen/Makefile");
 
 		while(count != (int)(strip.size())) {
 			count = analyzeStripped(&strip, count, &ifname, &ret, &fname, &par);

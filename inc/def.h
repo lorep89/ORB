@@ -1,7 +1,7 @@
 #ifndef DEF_H
 #define DEF_H
 
-#define	NSIP	"192.168.0.167"
+#define	NSIP	"127.0.0.1"
 #define NSPORT	"1234"
 
 #define NSREG	1

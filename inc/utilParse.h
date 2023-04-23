@@ -1,5 +1,7 @@
+#ifndef UTILPARSE_H
+#define UTILPARSE_H
+
 #include <iostream>
-#include <boost/tokenizer.hpp>
 #include <string>
 #include <cstring>
 #include <fstream>
@@ -7,8 +9,6 @@
 #include <stdio.h>
 #include <boost/algorithm/string.hpp>
 
-#ifndef UTILPARSE_H
-#define UTILPARSE_H
 
 using namespace std;
 

@@ -8,10 +8,11 @@
 #include <boost/tokenizer.hpp>
 #include <boost/variant.hpp>
 #include <boost/thread.hpp>
-#include "Skel.h"
-#include "Service.h"
-#include "util.h"
-#include "def.h"
+
+#include "../inc/def.h"
+#include "../inc/Service.h"
+#include "../inc/Skel.h"
+#include "../inc/util.h"
 
 class Skel;
 class Service;

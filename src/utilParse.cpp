@@ -1,5 +1,7 @@
 #include "utilParse.h"
 
+#include <boost/tokenizer.hpp>
+
 using namespace std;
 
 void makeIface(string ifname, vector<string>* r, vector<string>* f, vector<vector<string>>* p) {
@@ -43,7 +45,7 @@ void makeProxy(string ifname, vector<string>* r, vector<string>* f, vector<vecto
 			<<"#include \""<<ifname<<"Proxy.h\"\n\n"
 			<<"class "<<ifname<<" : public "<<ifname<<"Proxy {\n"
 			<<"public:\n"
-			<<"\t"<<ifname<<"(string name) : "<<ifname<<"Proxy(name) {};\n";
+			<<"\t"<<ifname<<"(std::string name) : "<<ifname<<"Proxy(name) {};\n";
 
 	for(std::size_t i = 0; i < r->size(); ++i) {
 
@@ -77,17 +79,21 @@ void makeProxy(string ifname, vector<string>* r, vector<string>* f, vector<vecto
 	prout.open("./Autogen/inc/"+ifname+"Proxy.h");
 	if(prin.is_open()) {
 		while(getline(prin, line)) {
-			if(line == "//guard") {
+			if(line == "//guard\r") {
+				cout<<"Making proxyH guards"<<endl;
 				prout<<"#ifndef "<<upclass<<"PROXY_H\n";
 				prout<<"#define "<<upclass<<"PROXY_H\n\n";
 			}
-			else if(line=="//include")
+			else if(line=="//include\r"){
 				prout<<"#include \""<<ifname<<"Iface.h\"\n";
-			else if(line=="//class")
+			}
+			else if(line=="//class\r"){
 				prout<<"class "<<ifname<<"Proxy : public "<<ifname<<"Iface {\n";
-			else if(line == "//constructor")
+			}
+			else if(line == "//constructor\r"){
 				prout<<"\t"<<ifname<<"Proxy (string cname);\n";
-			else if(line == "//interface")
+			}
+			else if(line == "//interface\r"){
 				for(std::size_t i = 0; i < r->size(); ++i) {
 
 					prout<<"\t"<<r->at(i)<<" "<<f->at(i)<<"(";
@@ -101,8 +107,10 @@ void makeProxy(string ifname, vector<string>* r, vector<string>* f, vector<vecto
 
 					}
 				}
-			else
+			}
+			else{
 				prout<<line<<endl;
+			}
 		}
 	}
 	prin.close();
@@ -112,13 +120,13 @@ void makeProxy(string ifname, vector<string>* r, vector<string>* f, vector<vecto
 	prout.open("./Autogen/src/"+ifname+"Proxy.cpp");
 	if(prin.is_open()) {
 		while(getline(prin, line)) {
-			if(line == "//include")
+			if(line == "//include\r")
 				prout<<"#include \""<<ifname<<"Proxy.h\"\n";
-			else if(line == "//constructor") {
+			else if(line == "//constructor\r") {
 				prout	<<ifname<<"Proxy::"<<ifname<<"Proxy(string cname) {\n"
 						<<"\ttype = \""<<ifname<<"\";\n";
 			}
-			else if(line == "//interface") {
+			else if(line == "//interface\r") {
 				string temp;
 				for(std::size_t i = 0; i < r->size(); ++i) {
 
@@ -170,19 +178,19 @@ void makeSkel(string ifname, vector<string>* r, vector<string>* f, vector<vector
 	skout.open("./Autogen/inc/"+ifname+"Skel.h");
 	if(skin.is_open()) {
 		while(getline(skin, line)) {
-			if(line == "//guard") {
+			if(line == "//guard\r") {
 				skout<<"#ifndef "<<upclass<<"SKEL_H\n";
 				skout<<"#define "<<upclass<<"SKEL_H\n\n";
 			}
-			else if(line=="//class") {
+			else if(line=="//class\r") {
 				skout	<<"class "<<ifname<<"service;\n\n"
 						<<"class "<<skelname<<" : public Skel {\n"
 						<<"private:\n"
 						<<"\tstd::map<string, "<<ifname<<"service*> ser;\n";
 			}
-			// else if(line=="//makeskel")
+			// else if(line=="//makeskel\r")
 			// 	skout<<"\tboost::thread make_skel_thread("<<skelname<<"* s) { return boost::thread(startServer, s); };\n";
-			else if(line == "//constructor") {
+			else if(line == "//constructor\r") {
 				skout	<<"\t"<<skelname<<"();\n\n";
 						// <<"\t"<<skelname<<"(int port);\n\n";
 			}
@@ -197,9 +205,9 @@ void makeSkel(string ifname, vector<string>* r, vector<string>* f, vector<vector
 	skout.open("./Autogen/src/"+skelname+".cpp");
 	if(skin.is_open()) {
 		while(getline(skin, line)) {
-			if(line == "//include")
+			if(line == "//include\r")
 				skout<<"#include \""<<ifname<<"Inc.h\"\n";
-			else if(line == "//constructor") {
+			else if(line == "//constructor\r") {
 				skout<<skelname<<"::"<<skelname<<" () {\n";
 				// skout<<"\tcout<<\""<<ifname<<"Skel port: \"<<port<<endl;\n";
 				for(std::size_t i = 0; i<r->size(); ++i)
@@ -209,9 +217,9 @@ void makeSkel(string ifname, vector<string>* r, vector<string>* f, vector<vector
 						<<"\tser[obj->getName()] = dynamic_cast<"<<ifname<<"service*>(obj);\n"
 						<<"}\n\n";
 			}
-			else if(line == "//skeldispatch")
+			else if(line == "//skeldispatch\r")
 				skout<<"string "<<skelname<<"::dispatch(std::vector<string> vet) {\n";
-			else if(line == "//interface") {
+			else if(line == "//interface\r") {
 				string temp;
 				for(std::size_t i = 0; i<r->size(); ++i) {
 					skout<<"\t\tcase "<<std::to_string(i)<<":\n";
@@ -247,21 +255,21 @@ void makeService(string ifname, vector<string>* r, vector<string>* f, vector<vec
 
 	if(svin.is_open()) {
 		while(getline(svin, line)) {
-			if(line == "//guard") {
+			if(line == "//guard\r") {
 				svout<<"#ifndef "<<upclass<<"SERVICE_H\n";
 				svout<<"#define "<<upclass<<"SERVICE_H\n\n";
 			}
-			else if(line=="//include") {
+			else if(line=="//include\r") {
 				svout<<"#include \""<<ifname<<"Iface.h\"\n"
 					<<"#include \""<<ifname<<"Skel.h\"\n";
 			}
-			else if(line == "//class")
+			else if(line == "//class\r")
 				svout<<"class "<<sername<<" : public "<<ifname<<"Iface, public Service {\n";
-			else if(line=="//constructor")
+			else if(line=="//constructor\r")
 				svout<<"\t"<<sername<<"(string sname) : Service(sname, \""<<ifname<<"\") {};\n";
-			else if(line=="//makeskel")
+			else if(line=="//makeskel\r")
 				svout<<"\t"<<"Skel* makeSkel() override {return new "<<ifname<<"Skel(); }\n";
-			else if(line == "//interface")
+			else if(line == "//interface\r")
 				for(std::size_t i = 0; i < r->size(); ++i) {
 
 					svout<<"\t"<<r->at(i)<<" "<<f->at(i)<<"(";
@@ -282,16 +290,16 @@ void makeService(string ifname, vector<string>* r, vector<string>* f, vector<vec
 	svin.close();
 	svout.close();
 	
-	ofstream svoutcpp("./Autogen/imp/"+sername+".cpp", std::ios_base::app);
+//	ofstream svoutcpp("./Autogen/imp/"+sername+".cpp", std::ios_base::app);
 
-	svoutcpp.close();
+//	svoutcpp.close();
 	return;
 }
 
 void addMake(string ifname) {
 	ofstream mout("./Autogen/Makefile", std::ios_base::app);
 
-	mout<<ifname<<"Objs = $(addprefix $(objdir)/,util.o Client.o "
+	mout<<"\n"<<ifname<<"Objs = $(addprefix $(objdir)/,util.o Client.o "
 		<<ifname<<"Proxy.o "<<ifname<<"Skel.o "<<ifname<<"service.o)\n\n";
 
 	mout<<ifname<<": $(libdir)/lib"<<ifname<<".so\n\n";
@@ -347,25 +355,26 @@ void stripFile(string fname, vector<string>* strippedFile) {
 		char* buf = new char[len];
 		fin.read(buf, len);
 		string b = buf;
-		// cout<<buf<<endl;
-		// tokenizer::iterator it = t.begin();
-		// while(it != t.end()) {
-			
-		// }
-		boost::char_separator<char> s {" \t","\n{},();"};
+		boost::char_separator<char> s {" \t\r","\n{},();"};
 		tokenizer t{b,s};
 		bool comment = false;
 		for(tokenizer::iterator beg=t.begin(); beg!=t.end(); ++beg) {
-			if (beg->substr(0,2) == "//")
+			if (beg->substr(0,2) == "//"){
 				comment = true;
-
-			if ((comment)&&(*beg == "\n"))
-				comment = false;
-
-			if ((!comment)&&(*beg != "\n")) {
-				strippedFile->push_back(*beg);
-				fout<<"token: "<<*beg<<endl;
+				cout<<"begin comment at: "<< *beg<<endl;
 			}
+			if ((comment)&&(*beg == "\n")){
+				comment = false;
+				cout<<"end comment at: "<<*beg<<endl;
+			}
+
+
+			if ((comment)||(*beg == "\n")) {
+				continue;
+			}
+			strippedFile->push_back(*beg);
+			fout<<"token: "<<*beg<<endl;
+			cout<<"token: "<<*beg<<endl;
 		}
 		fin.close();
 		fout.close();
@@ -374,7 +383,7 @@ void stripFile(string fname, vector<string>* strippedFile) {
 int analyzeStripped(vector<string>* stripped, int c, string* ifname, vector<string>* ret, vector<string>* fname, vector<vector<string>>* par) {
 	int count = c;
 	if(stripped->at(count) != "interface")
-		cout<<"Syntax error: Declaration of interface must begin with keyword \"interface\"";
+		cout<<"Syntax error: Declaration of interface must begin with keyword \"interface\""<<endl;
 	else {
 		*ifname = stripped->at(count + 1);
 		count += 2;
