@@ -34,7 +34,7 @@ int main(int argc, char* argv[]) {
 		if(!fs::exists(fs::status("./Autogen/imp")))
 			fs::create_directory("./Autogen/imp");
 
-		system("sed -i \"1,14!d\"	./Autogen/Makefile");
+		system("sed -i \"1,15!d\"	./Autogen/Makefile");
 
 		while(count != (int)(strip.size())) {
 			count = analyzeStripped(&strip, count, &ifname, &ret, &fname, &par);
