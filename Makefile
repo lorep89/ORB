@@ -1,6 +1,6 @@
 CXX		= g++
 CXXFLAGS	= -I./inc -I./Autogen/inc -Wall -pedantic
-LDFLAGS		= -L./lib -lCar -lPlane -lORB
+LDFLAGS		= -L./lib -lCar -lPlane -lORB -Wl,-rpath,./lib
 
 srcdir	=	./src
 objdir	=	./obj
@@ -73,7 +73,7 @@ $(objdir)/NameServer.o: $(srcdir)/NameServer.cpp | $(objdir)/
 	$(CXX) $(CXXFLAGS) -c $^ -o $@
 
 $(objdir)/SkelServer.o: $(srcdir)/SkelServer.cpp | $(objdir)/
-	$(CXX)	$(CXXFLAGS)	-c -fPIC $^ -o $@
+	$(CXX) $(CXXFLAGS) -c -fPIC $^ -o $@
 
 $(objdir)/Client.o: $(srcdir)/Client.cpp | $(objdir)/
 	$(CXX) $(CXXFLAGS) -c -fPIC $^ -o $@
@@ -101,3 +101,9 @@ cleanOrb:
 
 clean: 
 	rm -f $(objdir)/* $(bindir)/* $(libdir)/libORB.so
+	
+cleanIfaces:
+	@sed -i "1,108!d"	./Makefile
+	make -C ./Autogen clean
+	@sed -i "1,15!d"	./Autogen/Makefile
+	

@@ -39,7 +39,11 @@ void makeProxy(string ifname, vector<string>* r, vector<string>* f, vector<vecto
 	string upclass = ifname;
 	boost::to_upper(upclass);
 
+	ofstream provaout("./Autogen/inc/"+ifname+".h");
+	provaout<<"prova\n2";
+	provaout.close();
 	ofstream prout("./Autogen/inc/"+ifname+".h");
+	cout<<"Writing "<<ifname<<" Proxy"<<endl<<r->at(0)<<endl;
 	prout	<<"#ifndef "<<upclass<<"_H\n"
 			<<"#define "<<upclass<<"_H\n\n"
 			<<"#include \""<<ifname<<"Proxy.h\"\n\n"
@@ -77,6 +81,7 @@ void makeProxy(string ifname, vector<string>* r, vector<string>* f, vector<vecto
 
 	ifstream prin("./inc/ProxyBase.h");
 	prout.open("./Autogen/inc/"+ifname+"Proxy.h");
+//	prout<<"prova\n";
 	if(prin.is_open()) {
 		while(getline(prin, line)) {
 			if(line == "//guard\r") {
@@ -113,6 +118,8 @@ void makeProxy(string ifname, vector<string>* r, vector<string>* f, vector<vecto
 			}
 		}
 	}
+	else
+		cout<<"file not open"<<endl;
 	prin.close();
 	prout.close();
 
@@ -300,7 +307,9 @@ void addMake(string ifname) {
 	ofstream mout("./Autogen/Makefile", std::ios_base::app);
 
 	mout<<"\n"<<ifname<<"Objs = $(addprefix $(objdir)/,util.o Client.o "
-		<<ifname<<"Proxy.o "<<ifname<<"Skel.o "<<ifname<<"service.o)\n\n";
+		<<ifname<<"Proxy.o "<<ifname<<"Skel.o "<<ifname<<"service.o)\n";
+
+	mout<<"\nlibObjs += $("<<ifname<<"Objs)\n\n";
 
 	mout<<ifname<<": $(libdir)/lib"<<ifname<<".so\n\n";
 
