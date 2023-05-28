@@ -13,4 +13,3 @@ $(objdir)/Client.o:
 
 $(objdir)/util.o:
 	$(CXX) $(CXXFLAGS) -c -fPIC ../src/util.cpp -o $@
-

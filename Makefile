@@ -99,11 +99,10 @@ cleanParse:
 cleanOrb:
 	rm -f $(ORB_OBJS) $(libdir)/libORB.so
 
-clean: 
-	rm -f $(objdir)/* $(bindir)/* $(libdir)/libORB.so
+clean: cleanIfaces
+	rm -f $(objdir)/* $(bindir)/* $(libdir)/*.so
 	
 cleanIfaces:
 	@sed -i "1,108!d"	./Makefile
 	make -C ./Autogen clean
 	@sed -i "1,15!d"	./Autogen/Makefile
-	
