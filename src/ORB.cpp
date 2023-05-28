@@ -5,13 +5,14 @@ using namespace std;
 
 ORB::ORB(){
 	skport = stoi(SKPORT);
-	skelsrv = new SkelServer(skport);
-	skelt = new thread(&SkelServer::start, skelsrv);
 }
 
 ORB::~ORB(){
-	skelt->join();
-	delete(skelsrv);
+	cout<<"ORB destructor"<<endl;
+	if (skelt) {
+		skelt->join();
+		delete(skelsrv);
+	}
 }
 
 bool ORB::find(string ifname, string name, string* s) {
@@ -36,6 +37,10 @@ void ORB::deploy(Service* obj) {
 	Client c;
 	cout<<"deploing: "<<obj->getName()<<endl;
 
+	if(!skelsrv) {
+		skelsrv = new SkelServer(skport);
+		skelt = new thread(&SkelServer::start, skelsrv);
+	}
 	bool dep = skelsrv->add(obj);
 	if(dep) {
 		string msg = to_string(NSREG) + "/" + SKPORT + "/" + obj->getName();

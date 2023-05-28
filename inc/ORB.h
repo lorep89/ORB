@@ -17,8 +17,8 @@ using std::string;
 class ORB {
 private:
 	int skport;
-	SkelServer* skelsrv;
-	thread* skelt;
+	SkelServer* skelsrv = NULL;
+	thread* skelt = NULL;
 
 public:
 	ORB();
