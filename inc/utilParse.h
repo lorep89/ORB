@@ -7,10 +7,13 @@
 #include <fstream>
 #include <boost/version.hpp>
 #include <stdio.h>
+#include <stdexcept>
 #include <boost/algorithm/string.hpp>
 
 
 using namespace std;
+
+string exec(string command);
 
 void makeUtil(string ifname) ;
 

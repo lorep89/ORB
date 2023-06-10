@@ -39,16 +39,25 @@ int main(int argc, char* argv[]) {
 		while(count != (int)(strip.size())) {
 			count = analyzeStripped(&strip, count, &ifname, &ret, &fname, &par);
 
+
 			makeIface(ifname, &ret, &fname, &par);
 			makeProxy(ifname, &ret, &fname, &par);
 			makeSkel(ifname, &ret, &fname, &par);
 			makeService(ifname, &ret, &fname, &par);
-			addMake(ifname);
+			string argp = "sed -n \"/^"+ifname+"Objs/=\" ./Autogen/Makefile";
+			string ls = exec(argp);
+			if(ls.empty()) {
+				cout<<"Risultato comando: "<<ls<<endl;
+				addMake(ifname);
+			}
+			else
+				cout<<"Interface "<<ifname<<" already present in ./Autogen/Makefile"<<endl;
 
 			string arg = "./addIfaceTarget.sh " + ifname;
 			const char * argstr = arg.c_str();
 			system(argstr);
 
+			cout<<"-----INTERFACE: "<<ifname<<"------"<<endl;
 			cout<<"-----------RETURN TYPES------------"<<endl;
 			for (int i=0; i<(int)(ret.size()); i++)
 				cout<<ret.at(i)<<endl;
@@ -64,6 +73,7 @@ int main(int argc, char* argv[]) {
 					else
 						cout<<endl;
 				}
+			cout<<"------- End of "<<ifname<<"----------"<<endl;
 			ret.clear();
 			fname.clear();
 			par.clear();

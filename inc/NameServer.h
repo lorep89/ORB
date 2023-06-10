@@ -19,7 +19,7 @@ private:
 	int lport;
 	boost::asio::io_service io_service;
 	string message;
-	std::multimap<string, NSOBJ> names;
+	std::map<string, NSOBJ> names;
 
 	void elab(boost::asio::ip::tcp::socket & socket, string msg);
 public:

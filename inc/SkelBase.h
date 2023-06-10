@@ -23,7 +23,7 @@ public:
 
 	string dispatch(std::vector<string> vet) override;
 
-	void add(Service* obj) override;
+	bool add(Service* obj) override;
 };
 
 #endif

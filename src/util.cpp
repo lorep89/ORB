@@ -9,7 +9,7 @@ string receive_(boost::asio::ip::tcp::socket & socket) {
        boost::asio::read_until( socket, buf, "\n" );
        string data = boost::asio::buffer_cast<const char*>(buf.data());
        data.erase(std::remove(data.begin(), data.end(), '\n'), data.cend());
-       cout<<data<<endl;
+       cout<<"New message received: "<<data<<endl;
        return data;
 }
 
@@ -19,10 +19,10 @@ void send_(boost::asio::ip::tcp::socket & socket, const string& message) {
        boost::system::error_code error;
        boost::asio::write( socket, boost::asio::buffer(msg), error );
        if( !error ) {
-              cout << "Client sent " << msg << endl;
+              cout << "Sent " << msg << endl;
        }
        else {
-              cout << "send failed: " << error.message() << endl;
+              cout << "Send failed: " << error.message() << endl;
        }
 }
 

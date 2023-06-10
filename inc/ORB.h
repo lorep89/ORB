@@ -27,7 +27,7 @@ public:
 
 	bool find(string ifname, string name, string* s);
 
-	void deploy(Service* obj);
+	bool deploy(Service* obj);
 
 	void init();
 

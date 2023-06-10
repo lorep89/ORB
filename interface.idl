@@ -3,7 +3,7 @@
 
 interface Car
 {
-	int accel(int acInt, int test);
+	int accel(double p_double, int test);
 
 	int brake(int brInt);
 
@@ -11,6 +11,6 @@ interface Car
 
 interface Plane
 {
-	int take_off(int acInt);
+	int take_off();
 
 }

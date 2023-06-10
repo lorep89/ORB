@@ -21,7 +21,7 @@ public:
 
 	virtual string dispatch(std::vector<string> vet) = 0;
 
-	virtual void add(Service* obj) = 0; 
+	virtual bool add(Service* obj) = 0;
 };
 
 #endif

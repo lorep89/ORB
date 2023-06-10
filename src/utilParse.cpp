@@ -1,8 +1,29 @@
 #include "utilParse.h"
-
 #include <boost/tokenizer.hpp>
 
 using namespace std;
+
+string exec(string command) {
+   char buffer[128];
+   string result = "";
+
+   // Open pipe to file
+   FILE* pipe = popen(command.c_str(), "r");
+   if (!pipe) {
+      return "popen failed!";
+   }
+
+   // read till end of process:
+   while (!feof(pipe)) {
+
+      // use buffer to read and add to result
+      if (fgets(buffer, 128, pipe) != NULL)
+         result += buffer;
+   }
+
+   pclose(pipe);
+   return result;
+}
 
 void makeIface(string ifname, vector<string>* r, vector<string>* f, vector<vector<string>>* p) {
 	string upclass = ifname;
@@ -16,16 +37,17 @@ void makeIface(string ifname, vector<string>* r, vector<string>* f, vector<vecto
 	for(std::size_t i = 0; i < r->size(); ++i) {
 
 		ifout<<"\n\tvirtual "<<r->at(i)<<" "<<f->at(i)<<"(";
-		string temp;
-		for(std::size_t j = 0; j < p->at(i).size(); j=j+2) {
-			temp += p->at(i).at(j) + " " + p->at(i).at(j+1);
-			// ifout<<p->at(i).at(j)<<" "<<p->at(i).at(j+1);
-			if(j+2<p->at(i).size())
-				temp += ", ";
-			else 
-				temp += ") = 0;\n";
-		}
-		ifout<<temp;
+//		string temp;
+		if(p->at(i).size() > 0)
+			for(std::size_t j = 0; j < p->at(i).size(); j=j+2) {
+				ifout << p->at(i).at(j) << " " << p->at(i).at(j+1);
+				if(j+2<p->at(i).size())
+					ifout << ", ";
+				else
+					ifout << ") = 0;\n";
+			}
+		else
+			ifout<<") = 0;\n";
 	}
 	ifout<<"};\n\n#endif";
 
@@ -43,7 +65,7 @@ void makeProxy(string ifname, vector<string>* r, vector<string>* f, vector<vecto
 	provaout<<"prova\n2";
 	provaout.close();
 	ofstream prout("./Autogen/inc/"+ifname+".h");
-	cout<<"Writing "<<ifname<<" Proxy"<<endl<<r->at(0)<<endl;
+//	cout<<"Writing "<<ifname<<" Proxy"<<endl<<r->at(0)<<endl;
 	prout	<<"#ifndef "<<upclass<<"_H\n"
 			<<"#define "<<upclass<<"_H\n\n"
 			<<"#include \""<<ifname<<"Proxy.h\"\n\n"
@@ -55,24 +77,34 @@ void makeProxy(string ifname, vector<string>* r, vector<string>* f, vector<vecto
 
 		prout<<"\n\t"<<r->at(i)<<" "<<f->at(i)<<"(";
 		string temp;
-		for(std::size_t j = 0; j < p->at(i).size(); j=j+2) {
-			temp += p->at(i).at(j) + " " + p->at(i).at(j+1);
-			// prout<<p->at(i).at(j)<<" "<<p->at(i).at(j+1);
-			if(j+2<p->at(i).size())
-				temp += ", ";
-			else 
-				temp += ") {\n";
+		if(p->at(i).size() > 0){
+			for(std::size_t j = 0; j < p->at(i).size(); j=j+2) {
+				temp += p->at(i).at(j+1);
+				prout<<p->at(i).at(j)<<" "<<p->at(i).at(j+1);
+				if(j+2<p->at(i).size()) {
+					prout << ", ";
+					temp += ", ";
+				}
+				else {
+					prout << ") {\n";
+					temp += ");\n";
+				}
+			}
+//			prout<<temp;
 		}
-		prout<<temp;
+		else {
+			prout<<") {\n";
+			temp += ");\n";
+		}
 		prout<<"\t\tint ret = "<<ifname<<"Proxy::"<<f->at(i)<<"(";
-		temp = "";
-		for(std::size_t j = 0; j < p->at(i).size(); j=j+2) {
-			temp += p->at(i).at(j+1);
-			if(j+2<p->at(i).size())
-				temp += ", ";
-			else 
-				temp += ");\n";
-		}
+//		temp = "";
+//		for(std::size_t j = 0; j < p->at(i).size(); j=j+2) {
+//			temp += p->at(i).at(j+1);
+//			if(j+2<p->at(i).size())
+//				temp += ", ";
+//			else
+//				temp += ");\n";
+//		}
 		prout<<temp;
 		prout<<"\t\treturn ret;\n\t};\n";
 	}
@@ -81,11 +113,10 @@ void makeProxy(string ifname, vector<string>* r, vector<string>* f, vector<vecto
 
 	ifstream prin("./inc/ProxyBase.h");
 	prout.open("./Autogen/inc/"+ifname+"Proxy.h");
-//	prout<<"prova\n";
 	if(prin.is_open()) {
 		while(getline(prin, line)) {
 			if(line == "//guard\r") {
-				cout<<"Making proxyH guards"<<endl;
+//				cout<<"Making proxyH guards"<<endl;
 				prout<<"#ifndef "<<upclass<<"PROXY_H\n";
 				prout<<"#define "<<upclass<<"PROXY_H\n\n";
 			}
@@ -103,14 +134,16 @@ void makeProxy(string ifname, vector<string>* r, vector<string>* f, vector<vecto
 
 					prout<<"\t"<<r->at(i)<<" "<<f->at(i)<<"(";
 
-					for(std::size_t j = 0; j < p->at(i).size(); j=j+2) {
-						prout<<p->at(i).at(j)<<" "<<p->at(i).at(j+1);
-						if(j+2<p->at(i).size())
-							prout<<", ";
-						else 
-							prout<<") override;\n\n";
-
-					}
+					if(p->at(i).size() > 0)
+						for(std::size_t j = 0; j < p->at(i).size(); j=j+2) {
+							prout<<p->at(i).at(j)<<" "<<p->at(i).at(j+1);
+							if(j+2<p->at(i).size())
+								prout<<", ";
+							else
+								prout<<") override;\n\n";
+						}
+					else
+						prout<<") override;\n\n";
 				}
 			}
 			else{
@@ -134,25 +167,33 @@ void makeProxy(string ifname, vector<string>* r, vector<string>* f, vector<vecto
 						<<"\ttype = \""<<ifname<<"\";\n";
 			}
 			else if(line == "//interface\r") {
-				string temp;
+				string temp = "", ini;
 				for(std::size_t i = 0; i < r->size(); ++i) {
-
 					prout<<r->at(i)<<" "<<ifname<<"Proxy::"<<f->at(i)<<"(";
-					temp = "\tstring msg = type + \"/\" + name + \"/"+f->at(i)+"/\"";
-					for(std::size_t j = 0; j < p->at(i).size(); j=j+2) {
-						prout<<p->at(i).at(j)<<" "<<p->at(i).at(j+1);
-						temp += " + std::to_string(" + p->at(i).at(j+1) + ")";
-						if(j+2<p->at(i).size()) {
-							prout<<", ";
-							temp += " + \"/\"";
-						}
-						else {
-							prout<<") {\n";
-							temp += ";\n";
-						}
+					if(p->at(i).size() > 0) {
+						ini = "\tstd::ostringstream oss;\n";
+						ini += "\tboost::archive::text_oarchive oa(oss);\n";
+						temp = "\toa << ";
+						for(std::size_t j = 0; j < p->at(i).size(); j=j+2) {
+							prout<<p->at(i).at(j)<<" "<<p->at(i).at(j+1);
+							temp += p->at(i).at(j+1);
+							if(j+2<p->at(i).size()) {
+								prout<<", ";
+								temp += " << ";
+							}
+							else {
+								prout<<") {\n";
+								temp += ";\n";
+							}
 
+						}
+						prout<<ini<<temp;
+						prout<<"\tstring msg = type + \"/\" + name + \"/"+f->at(i)+"/\" + oss.str();\n";
 					}
-					prout<<temp;
+					else {
+						prout<<") {\n";
+						prout<<"\tstring msg = type + \"/\" + name + \"/"+f->at(i)+"/\";\n";
+					}
 					prout<<"\tstring resp = c.send(destIP, destPort, msg);\n";
 					prout<<"\treturn stoi(resp);\n}\n\n";
 				}				
@@ -195,11 +236,8 @@ void makeSkel(string ifname, vector<string>* r, vector<string>* f, vector<vector
 						<<"private:\n"
 						<<"\tstd::map<string, "<<ifname<<"service*> ser;\n";
 			}
-			// else if(line=="//makeskel\r")
-			// 	skout<<"\tboost::thread make_skel_thread("<<skelname<<"* s) { return boost::thread(startServer, s); };\n";
 			else if(line == "//constructor\r") {
 				skout	<<"\t"<<skelname<<"();\n\n";
-						// <<"\t"<<skelname<<"(int port);\n\n";
 			}
 			else
 				skout<<line<<endl;
@@ -220,26 +258,45 @@ void makeSkel(string ifname, vector<string>* r, vector<string>* f, vector<vector
 				for(std::size_t i = 0; i<r->size(); ++i)
 					skout<<"\tfns[\""<<f->at(i)<<"\"] = "<<std::to_string(i)<<";\n";
 				skout	<<"}\n\n"
-						<<"void "<<skelname<<"::add(Service* obj) {\n"
-						<<"\tser[obj->getName()] = dynamic_cast<"<<ifname<<"service*>(obj);\n"
+						<<"bool "<<skelname<<"::add(Service* obj) {\n"
+						<<"\tbool added = false;\n"
+						<<"\tauto it = ser.find(obj->getName());\n"
+						<<"\tif(it == ser.end()){\n"
+						<<"\t\tser[obj->getName()] = dynamic_cast<"<<ifname<<"service*>(obj);\n"
+						<<"\t\tadded = true;\n\t}\n"
+						<<"\treturn added;\n"
 						<<"}\n\n";
 			}
 			else if(line == "//skeldispatch\r")
 				skout<<"string "<<skelname<<"::dispatch(std::vector<string> vet) {\n";
 			else if(line == "//interface\r") {
-				string temp;
+				string respfun = "", argdecl = "", archass = "";
 				for(std::size_t i = 0; i<r->size(); ++i) {
-					skout<<"\t\tcase "<<std::to_string(i)<<":\n";
-					temp = "\t\t\tresp = std::to_string(it->second->"+f->at(i)+"(";
-					for(std::size_t j = 0; j < p->at(i).size(); j=j+2) {
-						temp += "stoi(vet.at("+std::to_string((j/2)+2)+"))";
-						if(j+2<p->at(i).size())
-							temp += ",";
-						else
-							temp += "));\n";
+					if(p->at(i).size()>0) {
+						respfun = "\t\t\tresp = std::to_string(it->second->"+f->at(i)+"(";
+						archass = "\t\t\tia >> ";
+						for(std::size_t j = 0; j < p->at(i).size(); j=j+2) {
+							argdecl += "\t\t\t"+p->at(i).at(j)+" "+p->at(i).at(j+1)+";\n";
+							archass += p->at(i).at(j+1);
+							respfun += p->at(i).at(j+1);
+							if(j+2 < p->at(i).size()) {
+								respfun += ",";
+								archass += " >> ";
+							}
+							else {
+								respfun += "));\n";
+								archass += ";\n";
+							}
+						}
+						skout<<"\t\tcase "<<std::to_string(i)<<":\n";
+						skout<<argdecl<<archass<<respfun;
 					}
-					skout<<temp;
+					else {
+						skout<<"\t\tcase "<<std::to_string(i)<<":\n";
+						skout<<"\t\t\tresp = std::to_string(it->second->"+f->at(i)+"());\n";
+					}
 					skout<<"\t\t\tbreak;\n";
+					argdecl = "";
 				}
 			}
 			else
@@ -281,14 +338,17 @@ void makeService(string ifname, vector<string>* r, vector<string>* f, vector<vec
 
 					svout<<"\t"<<r->at(i)<<" "<<f->at(i)<<"(";
 
-					for(std::size_t j = 0; j < p->at(i).size(); j=j+2) {
-						svout<<p->at(i).at(j)<<" "<<p->at(i).at(j+1);
-						if(j+2<p->at(i).size())
-							svout<<", ";
-						else 
-							svout<<") override;\n\n";
+					if(p->at(i).size() > 0)
+						for(std::size_t j = 0; j < p->at(i).size(); j=j+2) {
+							svout<<p->at(i).at(j)<<" "<<p->at(i).at(j+1);
+							if(j+2<p->at(i).size())
+								svout<<", ";
+							else
+								svout<<") override;\n\n";
 
-					}
+						}
+					else
+						svout<<") override;\n\n";
 				}
 			else
 				svout<<line<<endl;
@@ -369,11 +429,11 @@ void stripFile(string fname, vector<string>* strippedFile) {
 		for(tokenizer::iterator beg=t.begin(); beg!=t.end(); ++beg) {
 			if (beg->substr(0,2) == "//"){
 				comment = true;
-				cout<<"begin comment at: "<< *beg<<endl;
+//				cout<<"begin comment at: "<< *beg<<endl;
 			}
 			if ((comment)&&(*beg == "\n")){
 				comment = false;
-				cout<<"end comment at: "<<*beg<<endl;
+//				cout<<"end comment at: "<<*beg<<endl;
 			}
 
 
@@ -382,7 +442,7 @@ void stripFile(string fname, vector<string>* strippedFile) {
 			}
 			strippedFile->push_back(*beg);
 			fout<<"token: "<<*beg<<endl;
-			cout<<"token: "<<*beg<<endl;
+//			cout<<"token: "<<*beg<<endl;
 		}
 		fin.close();
 		fout.close();
@@ -395,8 +455,8 @@ int analyzeStripped(vector<string>* stripped, int c, string* ifname, vector<stri
 	else {
 		*ifname = stripped->at(count + 1);
 		count += 2;
-		cout<<*ifname<<endl;
-		cout<<"Next token: "<<stripped->at(count)<<endl;
+//		cout<<*ifname<<endl;
+//		cout<<"Next token: "<<stripped->at(count)<<endl;
 		// for(auto it:strip)
 		// 	cout<<it<<endl;
 	}
@@ -404,9 +464,9 @@ int analyzeStripped(vector<string>* stripped, int c, string* ifname, vector<stri
 		cout<<"Syntax error"<<endl;
 	else {
 		count+=1;
-		cout<<"Next token: "<<stripped->at(count)<<endl;
+//		cout<<"Next token: "<<stripped->at(count)<<endl;
 		while(stripped->at(count) != "}") {
-			cout<<"Getting methods. Next token: "<<stripped->at(count)<<endl;
+//			cout<<"Getting methods. Next token: "<<stripped->at(count)<<endl;
 			getMethod(&count, stripped, ret, fname, par);
 			if(stripped->at(count) != ";")
 				cout<<"Syntax error"<<endl;
@@ -414,6 +474,6 @@ int analyzeStripped(vector<string>* stripped, int c, string* ifname, vector<stri
 		}
 	}
 	count+=1;
-	cout<<"count: "<<count<<"\tsize: "<<stripped->size()<<endl;
+//	cout<<"count: "<<count<<"\tsize: "<<stripped->size()<<endl;
 	return count;
 }

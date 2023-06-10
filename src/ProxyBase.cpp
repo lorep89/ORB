@@ -1,5 +1,10 @@
 //include
 #include "util.h"
+#include <sstream>
+
+// include headers that implement a archive in simple text format
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
 
 using std::string;
 using std::cout;

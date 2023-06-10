@@ -12,17 +12,19 @@ SkelServer::SkelServer(int port) {
 }
 
 bool SkelServer::add(Service* obj) {
+	bool added = true;
+	//Find skeleton for types of obj
 	auto it = skels.find(obj->getType());
 	if (it != skels.end()) {
 		skel = skels[obj->getType()];
-		skel->add(obj);
+		added = skel->add(obj);
 	}
-	else {
+	else { //Type not found. Add new skeleton for that type
 		skel = obj->makeSkel();
 		skels.insert(Skelmap::value_type(obj->getType(), skel));
 		skel->add(obj);
 	}
-	return true;
+	return added;
 }
 
 void SkelServer::start() {

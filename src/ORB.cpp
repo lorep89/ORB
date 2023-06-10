@@ -33,21 +33,37 @@ bool ORB::find(string ifname, string name, string* s) {
 		return found;
 }
 
-void ORB::deploy(Service* obj) {
+bool ORB::deploy(Service* obj) {
 	Client c;
-	cout<<"deploing: "<<obj->getName()<<endl;
+	bool deployed = true;
+	cout<<"Deploing: "<<obj->getName()<<endl;
 
-	if(!skelsrv) {
-		skelsrv = new SkelServer(skport);
-		skelt = new thread(&SkelServer::start, skelsrv);
+	//Check if another servant with the same name is already present in name server
+	string msg = to_string(NSFIND) + "/" + obj->getName();
+	int nsport = stoi(NSPORT);
+	string resp = c.send(NSIP, nsport, msg);
+	std::vector<string> vet = splitMsg(resp);
+	if(vet.at(0) != "0") {
+		deployed = false;
+		cout<<obj->getName()<<" already present in Nameserver"<<endl;
 	}
-	bool dep = skelsrv->add(obj);
-	if(dep) {
-		string msg = to_string(NSREG) + "/" + SKPORT + "/" + obj->getName();
-		int nsport = stoi(NSPORT);
-		c.send(NSIP, nsport, msg);
+	else { // Servant is not present in name server, try to add it locally
+		if(!skelsrv) {
+			skelsrv = new SkelServer(skport);
+			skelt = new thread(&SkelServer::start, skelsrv);
+		}
+		bool dep = skelsrv->add(obj);
+		if(dep) {
+			msg = to_string(NSREG) + "/" + SKPORT + "/" + obj->getName();
+			resp = c.send(NSIP, nsport, msg);
+			vet = splitMsg(resp);
+		}
+		else {
+			deployed = false;
+			cout<<obj->getName()<<" already present locally"<<endl;
+		}
 	}
-	return;	
+	return deployed;
 }
 
 void ORB::init() {

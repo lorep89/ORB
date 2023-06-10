@@ -16,9 +16,9 @@ private:
 public:
 //constructor
 
-string getIP () {return destIP;};
+	string getIP () {return destIP;};
 
-int getPort() {return destPort;};
+	int getPort() {return destPort;};
 
 //interface
 };

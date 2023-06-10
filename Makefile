@@ -1,6 +1,6 @@
 CXX		= g++
 CXXFLAGS	= -I./inc -I./Autogen/inc -Wall -pedantic
-LDFLAGS		= -L./lib -lCar -lPlane -lORB -Wl,-rpath,./lib
+LDFLAGS		= -L./lib -lCar -lORB -lboost_serialization -Wl,-rpath,./lib
 
 srcdir	=	./src
 objdir	=	./obj
@@ -99,10 +99,10 @@ cleanParse:
 cleanOrb:
 	rm -f $(ORB_OBJS) $(libdir)/libORB.so
 
-clean: cleanIfaces
+clean: wipe
 	rm -f $(objdir)/* $(bindir)/* $(libdir)/*.so
 	
-cleanIfaces:
+wipe:
 	@sed -i "1,108!d"	./Makefile
 	make -C ./Autogen clean
 	@sed -i "1,15!d"	./Autogen/Makefile

@@ -24,7 +24,7 @@ void NameServer::start() {
             acceptor_.accept(socket_);
 //read operation
             message = receive_(socket_);
-            cout << message << endl;
+//            cout << "Received message: "<< message << endl;
 //elaboration of message
             elab(socket_, message);
       }
@@ -38,23 +38,34 @@ void NameServer::elab(boost::asio::ip::tcp::socket & socket, string msg) {
 	string resp = "err";
 	switch (std::stoi(vet.at(0))) {
 	case NSREG:
+	{
 		cout<<"New Servant registering..."<<endl;
+		resp="0/Servant already present";
 		nsobj.port = stoi(vet.at(1));
 		nsobj.name = vet.at(2);
-		names.insert(std::pair{nsobj.name, nsobj});
-		cout<<"IP: "<< nsobj.ip << endl <<"Port: " << nsobj.port << endl << "name: " << nsobj.name << endl;
-		for(auto& p: names)
-			cout<< p.first << endl;
-		resp = nsobj.name + " registered to ORB";
+		auto reg = names.find(nsobj.name);
+		if(reg != names.end()) {
+			cout<<"Servant already present:"<<endl;
+			for(auto& p: names)
+				cout<< p.first << endl;
+		}
+		else {
+			names.insert(std::pair{nsobj.name, nsobj});
+			cout<<"Servant registered"<<endl;
+			cout<<"IP: "<< nsobj.ip << endl <<"Port: " << nsobj.port << endl << "name: " << nsobj.name << endl;
+			resp = "1/" + nsobj.name + " registered to ORB";
+		}
 		break;
-
+	}
 	case NSFIND:
+	{
 		cout<<"New request for servant:  "<<vet.at(1)<<endl;
-		resp = "0/not found in Name Server";
-		auto it = names.find(vet.at(1));
-		if(it != names.end())
-			resp = it->second.ip + "/" + std::to_string(it->second.port) + "/" + it->second.name;
+		resp = "0/Not found in Name Server";
+		auto found = names.find(vet.at(1));
+		if(found != names.end())
+			resp = found->second.ip + "/" + std::to_string(found->second.port) + "/" + found->second.name;
 		break;
+	}
 	}
 
 //write operation
