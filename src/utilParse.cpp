@@ -28,6 +28,53 @@ string exec(string command) {
 void makeIface(string ifname, vector<string>* r, vector<string>* f, vector<vector<string>>* p) {
 	string upclass = ifname;
 	boost::to_upper(upclass);
+
+	ofstream typeout("./Autogen/inc/" + ifname + "Types.h");
+	typeout	<<"#ifndef "<<upclass<<"TYPES_H\n"
+			<<"#define "<<upclass<<"TYPES_H\n\n";
+
+	for(std::size_t i = 0; i<f->size(); ++i){
+		if(p->at(i).size() > 0){
+			typeout	<<"class "<<ifname<<f->at(i)<<"Args {\n"
+					<<"public:\n";
+			string temp = "", temp2 = "\t\t";
+			for(std::size_t j = 0; j < p->at(i).size(); j=j+2) {
+				typeout<<"\t"<<p->at(i).at(j)<<" "<<"m_"<<p->at(i).at(j+1)<<";\n";
+				temp += p->at(i).at(j)+" "+p->at(i).at(j+1);
+				temp2 += "m_"+p->at(i).at(j+1)+"("+p->at(i).at(j+1)+")";
+				if(j+2<p->at(i).size()) {
+					temp += ", ";
+					temp2 += ", ";
+				}
+				else {
+					temp += ") : \n";
+					temp2 += " {};\n";
+				}
+			}
+			typeout<<"\t"<<ifname<<f->at(i)<<"Args () {};\n";
+			typeout<<"\t"<<ifname<<f->at(i)<<"Args ("<<temp<<temp2<<"};\n\n";
+		}
+	}
+
+	typeout 	<<"namespace boost {\n"<<"namespace serialization {\n\n";
+
+	for(std::size_t i = 0; i<f->size(); ++i){
+		if(p->at(i).size() > 0){
+			typeout	<<"template<class Archive>\n"
+					<<"void serialize(Archive & ar, "<<ifname<<f->at(i)<<"Args & p_args, const unsigned int version)\n{\n";
+			for(std::size_t j = 0; j < p->at(i).size(); j=j+2) {
+				typeout<<"\tar &p_args.m_"<<p->at(i).at(j+1)<<";\n";
+			}
+			typeout<<"};\n\n";
+		}
+	}
+
+	typeout	<<"} // namespace serialization\n"
+			<<"} // namespace boost\n\n";
+	typeout<<"#endif";
+
+	typeout.close();
+
 	ofstream ifout("./Autogen/inc/" + ifname + "Iface.h");
 	ifout	<<"#ifndef "<<upclass<<"IFACE_H\n"
 			<<"#define "<<upclass<<"IFACE_H\n\n"
@@ -60,9 +107,6 @@ void makeProxy(string ifname, vector<string>* r, vector<string>* f, vector<vecto
 	string upclass = ifname;
 	boost::to_upper(upclass);
 
-	ofstream provaout("./Autogen/inc/"+ifname+".h");
-	provaout<<"prova\n2";
-	provaout.close();
 	ofstream prout("./Autogen/inc/"+ifname+".h");
 //	cout<<"Writing "<<ifname<<" Proxy"<<endl<<r->at(0)<<endl;
 	prout	<<"#ifndef "<<upclass<<"_H\n"
@@ -151,7 +195,8 @@ void makeProxy(string ifname, vector<string>* r, vector<string>* f, vector<vecto
 	if(prin.is_open()) {
 		while(getline(prin, line)) {
 			if(line == "//include\r")
-				prout<<"#include \""<<ifname<<"Proxy.h\"\n";
+				prout	<<"#include \""<<ifname<<"Proxy.h\"\n"
+						<<"#include \""<<ifname<<"Types.h\"\n";
 			else if(line == "//constructor\r") {
 				prout	<<ifname<<"Proxy::"<<ifname<<"Proxy(string cname) {\n"
 						<<"\ttype = \""<<ifname<<"\";\n";
@@ -162,22 +207,24 @@ void makeProxy(string ifname, vector<string>* r, vector<string>* f, vector<vecto
 					prout<<r->at(i)<<" "<<ifname<<"Proxy::"<<f->at(i)<<"(";
 					if(p->at(i).size() > 0) {
 						ini = "\tstd::ostringstream oss;\n";
-						ini += "\tboost::archive::text_oarchive oa(oss);\n";
-						temp = "\toa << ";
+						ini += "\t"+ifname+f->at(i)+"Args l_args(";
+//						ini += "\tboost::archive::text_oarchive oa(oss);\n";
+//						temp = "\toa << ";
 						for(std::size_t j = 0; j < p->at(i).size(); j=j+2) {
 							prout<<p->at(i).at(j)<<" "<<p->at(i).at(j+1);
-							temp += p->at(i).at(j+1);
+							ini += p->at(i).at(j+1);
 							if(j+2<p->at(i).size()) {
 								prout<<", ";
-								temp += " << ";
+								ini += ", ";
 							}
 							else {
 								prout<<") {\n";
-								temp += ";\n";
+								ini += ");\n";
 							}
 
 						}
-						prout<<ini<<temp;
+						prout<<ini<<"\tboost::archive::text_oarchive oa(oss);\n"
+								<<"\toa << l_args;\n";
 						prout<<"\tstring msg = type + \"/\" + name + \"/"+f->at(i)+"/\" + oss.str();\n";
 					}
 					else {
@@ -234,6 +281,7 @@ void makeSkel(string ifname, vector<string>* r, vector<string>* f, vector<vector
 			if(line == "//include\r") {
 				skout<<"#include \""<<ifname<<"Skel.h\"\n";
 				skout<<"#include \""<<ifname<<"service.h\"\n";
+				skout<<"#include \""<<ifname<<"Types.h\"\n";
 			}
 			else if(line == "//constructor\r") {
 				skout<<skelname<<"::"<<skelname<<" () {\n";
@@ -252,33 +300,40 @@ void makeSkel(string ifname, vector<string>* r, vector<string>* f, vector<vector
 			else if(line == "//skeldispatch\r")
 				skout<<"string "<<skelname<<"::dispatch(std::vector<string> vet) {\n";
 			else if(line == "//interface\r") {
-				string respfun = "", argdecl = "", archass = "";
+				string respfun = "";//, argdecl = "", archass = "";
 				for(std::size_t i = 0; i<r->size(); ++i) {
 					if(p->at(i).size()>0) {
+						skout	<<"\t\tcase "<<std::to_string(i)<<":\n"
+								<<"\t\t{\n"
+								<<"\t\t\t"<<ifname<<f->at(i)<<"Args l_args;\n"
+								<<"\t\t\tia >> l_args;\n";
+//								<<argdecl<<archass<<respfun;
 						respfun = "\t\t\tresp = std::to_string(it->second->"+f->at(i)+"(";
-						archass = "\t\t\tia >> ";
+//						archass = "\t\t\tia >> ";
 						for(std::size_t j = 0; j < p->at(i).size(); j=j+2) {
-							argdecl += "\t\t\t"+p->at(i).at(j)+" "+p->at(i).at(j+1)+";\n";
-							archass += p->at(i).at(j+1);
+							skout<<"\t\t\t"<<p->at(i).at(j)<<" "<<p->at(i).at(j+1)<<" = l_args.m_"<<p->at(i).at(j+1)<<";\n";
+//							argdecl += "\t\t\t"+p->at(i).at(j)+" "+p->at(i).at(j+1)+";\n";
+//							archass += p->at(i).at(j+1);
 							respfun += p->at(i).at(j+1);
 							if(j+2 < p->at(i).size()) {
 								respfun += ",";
-								archass += " >> ";
+//								archass += " >> ";
 							}
 							else {
 								respfun += "));\n";
-								archass += ";\n";
+//								archass += ";\n";
 							}
 						}
-						skout<<"\t\tcase "<<std::to_string(i)<<":\n";
-						skout<<argdecl<<archass<<respfun;
+						skout<<respfun;
 					}
 					else {
-						skout<<"\t\tcase "<<std::to_string(i)<<":\n";
-						skout<<"\t\t\tresp = std::to_string(it->second->"+f->at(i)+"());\n";
+						skout	<<"\t\tcase "<<std::to_string(i)<<":\n"
+								<<"\t\t{\n"
+								<<"\t\t\tresp = std::to_string(it->second->"+f->at(i)+"());\n";
 					}
-					skout<<"\t\t\tbreak;\n";
-					argdecl = "";
+					skout<<"\t\t\tbreak;\n"
+							<<"\t\t}\n";
+//					argdecl = "";
 				}
 			}
 			else

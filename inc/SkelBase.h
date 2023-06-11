@@ -7,9 +7,9 @@
 #include <boost/variant.hpp>
 #include <boost/thread.hpp>
 
-#include "../../inc/Service.h"
-#include "../../inc/Skel.h"
-#include "../../inc/util.h"
+#include "Service.h"
+#include "Skel.h"
+#include "util.h"
 
 using std::string;
 

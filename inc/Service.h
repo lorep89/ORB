@@ -1,7 +1,7 @@
 #ifndef SERVICE_H
 #define SERVICE_H
 
-#include "../inc/Skel.h"
+#include "Skel.h"
 
 class Service {
 private:
@@ -15,7 +15,7 @@ public:
 	};
 
 	virtual ~Service() {};
-	
+
 	string getName() {return this->name;};
 
 	string getType() {return this->type;};

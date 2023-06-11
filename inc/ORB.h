@@ -4,12 +4,12 @@
 #include <thread>
 #include <boost/variant.hpp>
 
-#include "../inc/Client.h"
-#include "../inc/def.h"
-#include "../inc/NameServer.h"
-#include "../inc/Service.h"
-#include "../inc/Skel.h"
-#include "../inc/SkelServer.h"
+#include "Client.h"
+#include "def.h"
+#include "NameServer.h"
+#include "Service.h"
+#include "Skel.h"
+#include "SkelServer.h"
 
 using namespace std;
 using std::string;

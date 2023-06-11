@@ -1,8 +1,8 @@
 //guard
 #include <boost/asio.hpp>
 
-#include "../../inc/Client.h"
-#include "../../inc/ORB.h"
+#include "Client.h"
+#include "ORB.h"
 //include
 
 //class

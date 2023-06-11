@@ -65,7 +65,7 @@ int main(int argc, char *argv[]) {
 //    return 0;
 
 	Car* c1 = new Car("Car1");
-	c1->accel(5.5, 5);
+	c1->accel("pippo", 5);
 	c1->brake(10);
 //	 Car* c2 = new Car("Car2");
 //	 c2->accel(10, 3);

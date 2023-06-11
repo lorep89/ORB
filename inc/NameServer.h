@@ -5,8 +5,8 @@
 #include <iostream>
 #include <map>
 
-#include "../inc/def.h"
-#include "../inc/util.h"
+#include "def.h"
+#include "util.h"
 
 struct NSOBJ{
 	string ip;

@@ -5,10 +5,10 @@
 #include <boost/asio.hpp>
 #include <boost/tokenizer.hpp>
 #include <boost/variant.hpp>
-#include "../inc/def.h"
-#include "../inc/Service.h"
-#include "../inc/Skel.h"
-#include "../inc/util.h"
+#include "def.h"
+#include "Service.h"
+#include "Skel.h"
+#include "util.h"
 
 class Skel;
 class Service;

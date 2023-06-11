@@ -1,8 +1,8 @@
 //guard
 #include <iostream>
 
-#include "../../inc/Service.h"
-#include "../../inc/Skel.h"
+#include "Service.h"
+#include "Skel.h"
 //include
 
 using std::string;

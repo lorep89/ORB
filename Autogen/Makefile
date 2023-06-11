@@ -3,10 +3,10 @@ CXXFLAGS	= -I../inc -I./inc
 
 objdir	=	../obj
 libdir	=	../lib
-libObjs =
+cleanObjs =
 	
 clean:
-	rm -f src/* inc/* $(libObjs)
+	rm -f src/* inc/* $(cleanObjs)
 
 $(objdir)/Client.o:
 	$(CXX) $(CXXFLAGS) -c -fPIC ../src/Client.cpp -o $@

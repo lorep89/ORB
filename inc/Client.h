@@ -4,7 +4,7 @@
 #include <iostream>
 #include <boost/asio.hpp>
 
-#include "../inc/util.h"
+#include "util.h"
 
 using namespace std;
 using namespace boost::asio;
