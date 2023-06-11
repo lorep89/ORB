@@ -14,6 +14,8 @@ public:
 		this->type = stype;
 	};
 
+	virtual ~Service() {};
+	
 	string getName() {return this->name;};
 
 	string getType() {return this->type;};

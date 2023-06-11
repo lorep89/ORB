@@ -32,12 +32,12 @@ void makeIface(string ifname, vector<string>* r, vector<string>* f, vector<vecto
 	ifout	<<"#ifndef "<<upclass<<"IFACE_H\n"
 			<<"#define "<<upclass<<"IFACE_H\n\n"
 			<<"class "<<ifname<<"Iface {"
-			<<	"\npublic:\n";
+			<<"\npublic:\n"
+			<<"\tvirtual ~"<<ifname<<"Iface() {};\n";
 
 	for(std::size_t i = 0; i < r->size(); ++i) {
 
 		ifout<<"\n\tvirtual "<<r->at(i)<<" "<<f->at(i)<<"(";
-//		string temp;
 		if(p->at(i).size() > 0)
 			for(std::size_t j = 0; j < p->at(i).size(); j=j+2) {
 				ifout << p->at(i).at(j) << " " << p->at(i).at(j+1);
@@ -57,7 +57,6 @@ void makeIface(string ifname, vector<string>* r, vector<string>* f, vector<vecto
 
 void makeProxy(string ifname, vector<string>* r, vector<string>* f, vector<vector<string>>* p) {
 	string line;
-	// vector<string> temp;
 	string upclass = ifname;
 	boost::to_upper(upclass);
 
@@ -90,21 +89,12 @@ void makeProxy(string ifname, vector<string>* r, vector<string>* f, vector<vecto
 					temp += ");\n";
 				}
 			}
-//			prout<<temp;
 		}
 		else {
 			prout<<") {\n";
 			temp += ");\n";
 		}
 		prout<<"\t\tint ret = "<<ifname<<"Proxy::"<<f->at(i)<<"(";
-//		temp = "";
-//		for(std::size_t j = 0; j < p->at(i).size(); j=j+2) {
-//			temp += p->at(i).at(j+1);
-//			if(j+2<p->at(i).size())
-//				temp += ", ";
-//			else
-//				temp += ");\n";
-//		}
 		prout<<temp;
 		prout<<"\t\treturn ret;\n\t};\n";
 	}
@@ -209,21 +199,12 @@ void makeProxy(string ifname, vector<string>* r, vector<string>* f, vector<vecto
 
 void makeSkel(string ifname, vector<string>* r, vector<string>* f, vector<vector<string>>* p) {
 	string line;
-	// vector<string> temp;
 	string upclass = ifname;
 	string skelname = ifname + "Skel";
 	boost::to_upper(upclass);
 
-	ofstream skout("./Autogen/inc/"+ifname+"Inc.h");
-	skout	<<"#ifndef "<<upclass<<"INC_H\n"
-			<<"#define "<<upclass<<"INC_H\n\n"
-			<<"#include \""<<skelname<<".h\"\n"
-			<<"#include \""<<ifname<<"service.h\"\n\n"
-			<<"#endif\n";
-	skout.close();
-
 	ifstream skin("./inc/SkelBase.h");
-	skout.open("./Autogen/inc/"+ifname+"Skel.h");
+	ofstream skout("./Autogen/inc/"+ifname+"Skel.h");
 	if(skin.is_open()) {
 		while(getline(skin, line)) {
 			if(line == "//guard\r") {
@@ -250,11 +231,12 @@ void makeSkel(string ifname, vector<string>* r, vector<string>* f, vector<vector
 	skout.open("./Autogen/src/"+skelname+".cpp");
 	if(skin.is_open()) {
 		while(getline(skin, line)) {
-			if(line == "//include\r")
-				skout<<"#include \""<<ifname<<"Inc.h\"\n";
+			if(line == "//include\r") {
+				skout<<"#include \""<<ifname<<"Skel.h\"\n";
+				skout<<"#include \""<<ifname<<"service.h\"\n";
+			}
 			else if(line == "//constructor\r") {
 				skout<<skelname<<"::"<<skelname<<" () {\n";
-				// skout<<"\tcout<<\""<<ifname<<"Skel port: \"<<port<<endl;\n";
 				for(std::size_t i = 0; i<r->size(); ++i)
 					skout<<"\tfns[\""<<f->at(i)<<"\"] = "<<std::to_string(i)<<";\n";
 				skout	<<"}\n\n"
@@ -310,7 +292,6 @@ void makeSkel(string ifname, vector<string>* r, vector<string>* f, vector<vector
 
 void makeService(string ifname, vector<string>* r, vector<string>* f, vector<vector<string>>* p) {
 	string line;
-	// vector<string> temp;
 	string upclass = ifname;
 	string sername = ifname + "service";
 	boost::to_upper(upclass);
@@ -356,10 +337,6 @@ void makeService(string ifname, vector<string>* r, vector<string>* f, vector<vec
 	}
 	svin.close();
 	svout.close();
-	
-//	ofstream svoutcpp("./Autogen/imp/"+sername+".cpp", std::ios_base::app);
-
-//	svoutcpp.close();
 	return;
 }
 
@@ -369,7 +346,8 @@ void addMake(string ifname) {
 	mout<<"\n"<<ifname<<"Objs = $(addprefix $(objdir)/,util.o Client.o "
 		<<ifname<<"Proxy.o "<<ifname<<"Skel.o "<<ifname<<"service.o)\n";
 
-	mout<<"\nlibObjs += $("<<ifname<<"Objs)\n\n";
+	mout<<"\ncleanObjs += $(addprefix $(objdir)/,"<<ifname<<"Proxy.o "
+		<<ifname<<"Skel.o "<<ifname<<"service.o)\n\n";
 
 	mout<<ifname<<": $(libdir)/lib"<<ifname<<".so\n\n";
 
@@ -385,7 +363,7 @@ void addMake(string ifname) {
 	mout<<"$(objdir)/"<<ifname<<"service.o:\n"
 		<<"\t$(CXX) $(CXXFLAGS) -c -fPIC ./imp/"<<ifname<<"service.cpp "<<"-o $@\n\n";
 
-	mout<<"libObjs += $(libdir)/lib"<<ifname<<".so\n";
+	mout<<"cleanObjs += $(libdir)/lib"<<ifname<<".so\n";
 
 	mout.close();
 }

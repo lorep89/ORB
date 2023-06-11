@@ -65,13 +65,3 @@ bool ORB::deploy(Service* obj) {
 	}
 	return deployed;
 }
-
-void ORB::init() {
-//	skport = stoi(SKPORT);
-//	skelsrv = new SkelServer(skport);
-//	skelt = new thread(&SkelServer::start, skelsrv);
-}
-
-void ORB::shutdown() {
-//	skelt->join();
-}

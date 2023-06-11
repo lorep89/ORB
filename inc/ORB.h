@@ -28,10 +28,6 @@ public:
 	bool find(string ifname, string name, string* s);
 
 	bool deploy(Service* obj);
-
-	void init();
-
-	void shutdown();
 };
 
 #endif
