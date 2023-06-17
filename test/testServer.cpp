@@ -10,7 +10,7 @@ int main() {
 
 	Carservice* c1;
 	// Carservice* c2;
-//	Planeservice* p1;
+	Planeservice* p1;
 
 	c1 = new Carservice("Car1");
 	myORB.deploy(c1);
@@ -20,9 +20,9 @@ int main() {
 	// myORB.deploy<Carservice>(c2);
 	// cout<<c2->getName()<<" deployed"<<endl;
 
-//	p1 = new Planeservice("Plane1");
-//	myORB.deploy(p1);
-//	cout<<p1->getName()<<" deployed"<<endl;
+	p1 = new Planeservice("Plane1");
+	myORB.deploy(p1);
+	cout<<p1->getName()<<" deployed"<<endl;
 
 //	delete(myORB);
 //	myORB.shutdown();

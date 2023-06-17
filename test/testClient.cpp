@@ -3,7 +3,7 @@
 
 #include "ORB.h"
 #include "Car.h"
-//#include "Plane.h"
+#include "Plane.h"
 
 // include headers that implement a archive in simple text format
 #include <boost/archive/text_oarchive.hpp>
@@ -65,13 +65,15 @@ int main(int argc, char *argv[]) {
 //    return 0;
 
 	Car* c1 = new Car("Car1");
-	c1->accel("pippo", 5);
-	c1->brake(10);
+	string s = c1->accel("pippo", 5);
+	cout<<s<<endl;
+//	c1->brake(10);
 //	 Car* c2 = new Car("Car2");
 //	 c2->accel(10, 3);
 //	 c1->brake(4);
-//	Plane* p1 = new Plane("Plane1");
-//	p1->take_off(25);
+	Plane* p1 = new Plane("Plane1");
+	int i = p1->take_off();
+	cout<<i<<endl;
 	
 	return 0;
 }

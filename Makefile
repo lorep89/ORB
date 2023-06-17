@@ -1,6 +1,6 @@
 CXX		= g++
 CXXFLAGS	= -I./inc -I./Autogen/inc -Wall -pedantic
-LDFLAGS		= -L./lib -lCar -lORB -lboost_serialization -Wl,-rpath,./lib
+LDFLAGS		= -L./lib -lCar -lPlane -lORB -lboost_serialization -Wl,-rpath,./lib
 
 srcdir	=	./src
 objdir	=	./obj

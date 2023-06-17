@@ -34,6 +34,12 @@ void makeIface(string ifname, vector<string>* r, vector<string>* f, vector<vecto
 			<<"#define "<<upclass<<"TYPES_H\n\n";
 
 	for(std::size_t i = 0; i<f->size(); ++i){
+		typeout	<<"class "<<ifname<<f->at(i)<<"Ret {\n"
+				<<"public:\n"
+				<<"\t"<<r->at(i)<<" m_ret;\n"
+				<<"\t"<<ifname<<f->at(i)<<"Ret () {};\n"
+				<<"\t"<<ifname<<f->at(i)<<"Ret ("<<r->at(i)<<" p_ret) :\n"
+				<<"\t\tm_ret(p_ret) {};\n};\n\n";
 		if(p->at(i).size() > 0){
 			typeout	<<"class "<<ifname<<f->at(i)<<"Args {\n"
 					<<"public:\n";
@@ -56,9 +62,13 @@ void makeIface(string ifname, vector<string>* r, vector<string>* f, vector<vecto
 		}
 	}
 
-	typeout 	<<"namespace boost {\n"<<"namespace serialization {\n\n";
+	typeout <<"namespace boost {\n"<<"namespace serialization {\n\n";
 
 	for(std::size_t i = 0; i<f->size(); ++i){
+		typeout <<"template<class Archive>\n"
+				<<"void serialize(Archive & ar, "<<ifname<<f->at(i)<<"Ret & p_args, const unsigned int version)\n{\n"
+				<<"\tar &p_args.m_ret;\n"
+				<<"};\n\n";
 		if(p->at(i).size() > 0){
 			typeout	<<"template<class Archive>\n"
 					<<"void serialize(Archive & ar, "<<ifname<<f->at(i)<<"Args & p_args, const unsigned int version)\n{\n";
@@ -138,7 +148,7 @@ void makeProxy(string ifname, vector<string>* r, vector<string>* f, vector<vecto
 			prout<<") {\n";
 			temp += ");\n";
 		}
-		prout<<"\t\tint ret = "<<ifname<<"Proxy::"<<f->at(i)<<"(";
+		prout<<"\t\t"<<r->at(i)<<" ret = "<<ifname<<"Proxy::"<<f->at(i)<<"(";
 		prout<<temp;
 		prout<<"\t\treturn ret;\n\t};\n";
 	}
@@ -202,9 +212,10 @@ void makeProxy(string ifname, vector<string>* r, vector<string>* f, vector<vecto
 						<<"\ttype = \""<<ifname<<"\";\n";
 			}
 			else if(line == "//interface\r") {
-				string temp = "", ini;
+				string temp = "", ini, always;
 				for(std::size_t i = 0; i < r->size(); ++i) {
 					prout<<r->at(i)<<" "<<ifname<<"Proxy::"<<f->at(i)<<"(";
+					always = "\tstd::istringstream iss;\n";
 					if(p->at(i).size() > 0) {
 						ini = "\tstd::ostringstream oss;\n";
 						ini += "\t"+ifname+f->at(i)+"Args l_args(";
@@ -223,16 +234,26 @@ void makeProxy(string ifname, vector<string>* r, vector<string>* f, vector<vecto
 							}
 
 						}
-						prout<<ini<<"\tboost::archive::text_oarchive oa(oss);\n"
+						prout<<always<<ini<<"\tboost::archive::text_oarchive oa(oss);\n"
 								<<"\toa << l_args;\n";
 						prout<<"\tstring msg = type + \"/\" + name + \"/"+f->at(i)+"/\" + oss.str();\n";
 					}
 					else {
-						prout<<") {\n";
+						prout<<") {\n"<<always;
 						prout<<"\tstring msg = type + \"/\" + name + \"/"+f->at(i)+"/\";\n";
 					}
-					prout<<"\tstring resp = c.send(destIP, destPort, msg);\n";
-					prout<<"\treturn stoi(resp);\n}\n\n";
+					prout<<"\tstring resp = c.send(destIP, destPort, msg);\n"
+						 <<"\tiss.str(resp);\n"
+						 <<"\tboost::archive::text_iarchive ia(iss);\n"
+						 <<"\t"<<ifname<<f->at(i)<<"Ret l_ret;\n"
+						 <<"\tia >> l_ret;\n"
+						 <<"\treturn l_ret.m_ret;\n}\n\n";
+//					iss.str(resp);
+//					boost::archive::text_iarchive ia(iss);
+//					CaraccelRet l_ret;
+//					ia >> l_ret;
+//					string ret = l_ret.m_string;
+//					return ret;
 				}				
 			}
 			else
@@ -305,10 +326,13 @@ void makeSkel(string ifname, vector<string>* r, vector<string>* f, vector<vector
 					if(p->at(i).size()>0) {
 						skout	<<"\t\tcase "<<std::to_string(i)<<":\n"
 								<<"\t\t{\n"
+								<<"\t\t\tboost::archive::text_iarchive ia(iss);\n"
+								<<"\t\t\tstd::ostringstream oss;\n"
+								<<"\t\t\tboost::archive::text_oarchive oa(oss);\n"
 								<<"\t\t\t"<<ifname<<f->at(i)<<"Args l_args;\n"
 								<<"\t\t\tia >> l_args;\n";
 //								<<argdecl<<archass<<respfun;
-						respfun = "\t\t\tresp = std::to_string(it->second->"+f->at(i)+"(";
+						respfun = "\t\t\t"+ifname+f->at(i)+"Ret l_ret(it->second->"+f->at(i)+"(";
 //						archass = "\t\t\tia >> ";
 						for(std::size_t j = 0; j < p->at(i).size(); j=j+2) {
 							skout<<"\t\t\t"<<p->at(i).at(j)<<" "<<p->at(i).at(j+1)<<" = l_args.m_"<<p->at(i).at(j+1)<<";\n";
@@ -324,12 +348,18 @@ void makeSkel(string ifname, vector<string>* r, vector<string>* f, vector<vector
 //								archass += ";\n";
 							}
 						}
-						skout<<respfun;
+						skout<<respfun
+							 <<"\t\t\toa << l_ret;\n"
+							 <<"\t\t\tresp = oss.str();\n";
 					}
 					else {
 						skout	<<"\t\tcase "<<std::to_string(i)<<":\n"
 								<<"\t\t{\n"
-								<<"\t\t\tresp = std::to_string(it->second->"+f->at(i)+"());\n";
+								<<"\t\t\tstd::ostringstream oss;\n"
+								<<"\t\t\tboost::archive::text_oarchive oa(oss);\n"
+								<<"\t\t\t"<<ifname<<f->at(i)<<"Ret l_ret(it->second->"<<f->at(i)<<"());\n"
+								<<"\t\t\toa << l_ret;\n"
+								<<"\t\t\tresp = oss.str();\n";
 					}
 					skout<<"\t\t\tbreak;\n"
 							<<"\t\t}\n";

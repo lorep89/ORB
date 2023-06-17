@@ -18,8 +18,9 @@ using namespace std;
 	std::istringstream iss;
 	auto it = ser.find(vet.at(0));
 	if(it != ser.end()) {
-		iss.str(vet.at(2));
-		boost::archive::text_iarchive ia(iss);
+		if(vet.size() > 2) {
+			iss.str(vet.at(2));
+		}
 		switch(fns[vet.at(1)]) {
 //interface
 		}

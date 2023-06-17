@@ -3,7 +3,7 @@
 
 interface Car
 {
-	int accel(string p_string, int test);
+	string accel(string p_string, int test);
 
 	int brake(int brInt);
 
