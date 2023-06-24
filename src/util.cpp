@@ -19,7 +19,7 @@ void send_(boost::asio::ip::tcp::socket & socket, const string& message) {
        boost::system::error_code error;
        boost::asio::write( socket, boost::asio::buffer(msg), error );
        if( !error ) {
-              cout << "Sent " << msg << endl;
+              cout << "Sent: " << msg;
        }
        else {
               cout << "Send failed: " << error.message() << endl;

@@ -8,7 +8,7 @@ ORB::ORB(){
 }
 
 ORB::~ORB(){
-	cout<<"ORB destructor"<<endl;
+	cout<<"ORB destructor"<<endl<<endl;
 	if (skelt) {
 		skelt->join();
 		delete(skelsrv);
